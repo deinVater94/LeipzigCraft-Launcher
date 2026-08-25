@@ -1,0 +1,153 @@
+{
+  "minecraft": "1.21",
+  "fabricLoaderClient": "0.18.4",
+  "source": "mods-manifest.txt",
+  "jarCount": 29,
+  "mods": [
+    {
+      "file": "armourersworkshop-fabric-1.21-3.0.0-beta.20.jar",
+      "size": 5074843,
+      "sha256": "0F1C6A9BF02D5A038ABFC3AB3408D750A6D3A61DFD56A29E5676EEDEF6BE31D7"
+    },
+    {
+      "file": "audioplayer-fabric-1.21.1-1.13.2.jar",
+      "size": 791232,
+      "sha256": "B7945CB17026E6D79408D6E56E4C51ABB43C27405DA98DDB03DAEFAF566782B1"
+    },
+    {
+      "file": "CustomNPCs-Unofficial-Fabric-1.21.1.20241204.jar",
+      "size": 12989132,
+      "sha256": "9A46F0FA437464E178E1CFB74059D344BD25C3D89D594DDCCFACB3EB8F8BB901"
+    },
+    {
+      "file": "fabric-api-0.102.0+1.21.jar",
+      "size": 2285859,
+      "sha256": "7EC0E5A11E77957FE1ED0328487921A8211BB7EACE14298CD74635BEC61A3F26"
+    },
+    {
+      "file": "fabric-language-kotlin-1.13.13+kotlin.2.4.10.jar",
+      "size": 8076363,
+      "sha256": "34CCDACF13BB9351FE43CE61912C2E09B72364E43E787D36BA3D2D04DEC75A52"
+    },
+    {
+      "file": "ForgeConfigAPIPort-v21.0.5-1.21-Fabric.jar",
+      "size": 569548,
+      "sha256": "55F935E86A580DDEC5864E531ED09BA446497473F2380048942A16DC96165236"
+    },
+    {
+      "file": "fuelpumprefill-1.0.3.jar",
+      "size": 24529,
+      "sha256": "4E601D022EEF7AEDA476BF7ACEB367AEA5C3F9705FD7CE3E2175722E9D4A5853"
+    },
+    {
+      "file": "gang-c4-addon-1.0.1.jar",
+      "size": 30246,
+      "sha256": "19FF2C7B44F811BD18F6C6B43260C0769B3A2BE6A2BC95FCFA6DA7BB9A965F48"
+    },
+    {
+      "file": "gang-combat-1.0.9-blade-slash-v1.jar",
+      "size": 77816,
+      "sha256": "A0FF61F4FCD9C1EF6B39C4AC9E0579CCFF5483D50D13B61E3FC2A23C257FA928"
+    },
+    {
+      "file": "gang-server-stats-1.0.0.jar",
+      "size": 33460,
+      "sha256": "159ABFA472250C9CC4AB7A0FD15A83D5426BF536DC3E4CE0B6F45596BBA4C212"
+    },
+    {
+      "file": "gang-street-map-0.1.0.jar",
+      "size": 31062,
+      "sha256": "C1EA7CEF92C930AC3473CC003C12210EB535D3113F143E3B71326BEA24327722"
+    },
+    {
+      "file": "gang-streetwear-armor-1.18.4-durability-creative-tab.jar",
+      "size": 600333,
+      "sha256": "BD85DAB9337C4D3EFC86A843668265C57EFAFC6ED946BD5746E3BCB4EAE624CF"
+    },
+    {
+      "file": "geckolib-fabric-1.21-4.5.8.jar",
+      "size": 584998,
+      "sha256": "90D005C98E2C7495862626A07BAE8A6CBA52EAFB438BB17BBC068FCDF3435F87"
+    },
+    {
+      "file": "Immersive Vehicles-1.21-25.0.0-fabric-alpha17-serverradio1.jar",
+      "size": 6261543,
+      "sha256": "FDFB902B4A650F2B02320D83E72B1A9236C2DA2C5E3B74121DBFE58391CCD9A2"
+    },
+    {
+      "file": "lexiconfig-fabric-1.4.21-novel.jar",
+      "size": 277062,
+      "sha256": "D5E3765199A0197B2F019F502056FD326A08BCC302B195BB16599AD0BE3347FC"
+    },
+    {
+      "file": "LuckPerms-Fabric-5.4.139.jar",
+      "size": 1574861,
+      "sha256": "40E770DE38099D85CE66E695A78E73D23CD11F502BE7A159C26E289C9CC112D4"
+    },
+    {
+      "file": "New_Cars4.4-1.21-26.1-Fabric-private.jar",
+      "size": 204023313,
+      "sha256": "DDA81A2BA6D8506871A8437F9F1C458DD58D7D614EBE4832B85B00C6CA8BB601"
+    },
+    {
+      "file": "open-parties-and-claims-fabric-1.21.1-0.30.3.jar",
+      "size": 1906530,
+      "sha256": "965B372056279C618A8A4EA5AC91363284F488E2A942BFE074BA868D9939EAFC"
+    },
+    {
+      "file": "openpac-pointblank-serverclaim-guard-1.0.4.jar",
+      "size": 10554,
+      "sha256": "E1BFE049D8D9B03B28AC539E012C511FC569E5ADC39E55DFFC748C83D853B76C"
+    },
+    {
+      "file": "pointblank-fabric-1.21-1.6.7.jar",
+      "size": 18671743,
+      "sha256": "9A369AB8653199D0DDE08D3EAA6FD98E07E81B5AF9CD7DC84A438D047E49AAB3"
+    },
+    {
+      "file": "simpleradio-fabric-1.21.1-4.4.6.9.jar",
+      "size": 990526,
+      "sha256": "DC0BEB662DFFE8583F148C0145E54A701A50D0FB293DE283ED0147D21B2EF11E"
+    },
+    {
+      "file": "styled-chat-2.6.1+1.21.jar",
+      "size": 487791,
+      "sha256": "3D0C31F35611D55D6B7F74932B739B406E9DB1961341AFC144ECFAA1CB2ABCDF"
+    },
+    {
+      "file": "vanish-1.5.5+1.21.jar",
+      "size": 1217720,
+      "sha256": "FF31F705A877BC3ADE5D4311A1C71711A05D701E629BD5743CA81DD3B00CABA2"
+    },
+    {
+      "file": "voicechat-fabric-1.21.1-2.6.22.jar",
+      "size": 5369475,
+      "sha256": "972A01592F670AA57F2DC2E3587A656B798106037468C61E4BFB49EBA7D6AE36"
+    },
+    {
+      "file": "worldedit-mod-7.3.8.jar",
+      "size": 6222854,
+      "sha256": "5E7752C97876D87411E3760BCC573CC431F43C453722E6959FA7FE54DB1B01CA"
+    },
+    {
+      "file": "Xaeros_Minimap_25.3.2_Fabric_1.21.jar",
+      "size": 2159724,
+      "sha256": "4277BEE0EF05D1E9DC1E03B51D52C67BD6457BB57402407E59B16AD7B08E8379"
+    },
+    {
+      "file": "xaeros-map-server-utils-1.1.0.jar",
+      "size": 18846,
+      "sha256": "7A3FA07E1781F94037B0402692BACF83F2506C3BA34FAA80F1EF9131D7693D40"
+    },
+    {
+      "file": "XaerosWorldMap_1.40.2_Fabric_1.21.jar",
+      "size": 1406203,
+      "sha256": "3B918BDC717E5141B5B8D3729FBD587F2D86996C7345072659DF6BC3688D6D42"
+    },
+    {
+      "file": "YetAnotherConfigLib-3.6.2+1.21-fabric.jar",
+      "size": 1108730,
+      "sha256": "E0605B29D984C8D85D4CD03B297C05FB3BFBB28D41F3DD491F60775D0289D5C1"
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace LeipzigCraft.Launcher.Services;
 
 public static class AppPaths

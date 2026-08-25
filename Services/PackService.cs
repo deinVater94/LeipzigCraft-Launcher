@@ -1,3 +1,4 @@
+using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
@@ -88,14 +89,11 @@ public sealed class PackService
 
         status?.Invoke("Installiere Modpack …");
 
-        // Mods are fully managed by LeipzigCraft. This removes stale JARs.
         if (Directory.Exists(modsDir))
             Directory.Delete(modsDir, recursive: true);
 
         Directory.CreateDirectory(modsDir);
 
-        // Config is intentionally NOT deleted. Pack config overlays existing
-        // settings so harmless client preferences can survive updates.
         ZipFile.ExtractToDirectory(
             zipPath,
             AppPaths.Game,
@@ -145,6 +143,7 @@ public sealed class PackService
             await SHA256.HashDataAsync(stream));
 
         var expected = expectedHash
+            .Replace("sha256:", "", StringComparison.OrdinalIgnoreCase)
             .Replace(" ", "")
             .Trim()
             .ToUpperInvariant();

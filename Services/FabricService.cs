@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Xml.Linq;
 using LeipzigCraft.Launcher.Models;
@@ -111,7 +112,6 @@ public sealed class FabricService
                     SearchOption.AllDirectories));
         }
 
-        // Prefer newest-looking runtime path.
         return candidates
             .OrderByDescending(File.GetLastWriteTimeUtc)
             .FirstOrDefault();

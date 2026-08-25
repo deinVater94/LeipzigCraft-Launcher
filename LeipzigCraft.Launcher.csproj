@@ -22,9 +22,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Floating 3.x keeps us on the current CmlLib.Core 3.x API line. -->
-    <PackageReference Include="CmlLib.Core" Version="3.*" />
-    <PackageReference Include="XboxAuthNet.Game.Msal" Version="1.*" />
+    <PackageReference Include="CmlLib.Core" Version="4.0.6" />
+    <PackageReference Include="CmlLib.Core.Auth.Microsoft" Version="3.3.1" />
   </ItemGroup>
 
   <ItemGroup>

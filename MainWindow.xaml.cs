@@ -17,28 +17,20 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-
         AppPaths.Ensure();
         InstancePathText.Text = AppPaths.Game;
 
         if (_pack.HasLocalMods())
-        {
-            StatusText.Text =
-                "Lokales LeipzigCraft-Modpack gefunden. Bereit zum Testen.";
-        }
+            StatusText.Text = "Lokales LeipzigCraft-Modpack gefunden. Bereit.";
     }
 
-    private async void LoginButton_Click(
-        object sender,
-        RoutedEventArgs e)
+    private async void LoginButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_busy)
-            return;
+        if (_busy) return;
 
         await RunBusyAsync(async () =>
         {
             SetStatus("Öffne Microsoft-Anmeldung …");
-
             _session = await _minecraft.LoginAsync();
 
             AccountText.Text =
@@ -51,12 +43,9 @@ public partial class MainWindow : Window
         });
     }
 
-    private async void PlayButton_Click(
-        object sender,
-        RoutedEventArgs e)
+    private async void PlayButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_busy)
-            return;
+        if (_busy) return;
 
         await RunBusyAsync(async () =>
         {
@@ -82,19 +71,21 @@ public partial class MainWindow : Window
             if (!_pack.HasLocalMods())
             {
                 throw new InvalidOperationException(
-                    "Noch kein LeipzigCraft-Modpack installiert.\n\n" +
-                    "Für den Entwicklertest zuerst tools\\Import-Current-Pack.ps1 ausführen. " +
-                    "Für Spieler veröffentlichen wir später pack.json + das Pack-ZIP.");
+                    "Das LeipzigCraft-Modpack wurde nicht installiert.\n\n" +
+                    "Prüfe https://leipzigcraft.com/launcher/pack.json " +
+                    "und die GitHub-Release-Datei.");
             }
 
+            SetStatus("Bereite LeipzigCraft vor …");
+
+            var process = await _minecraft.CreateFabricProcessAsync(
+                _session,
+                SetStatus);
+
             SetStatus("Starte LeipzigCraft …");
-
-            var process =
-                await _minecraft.CreateFabricProcessAsync(_session);
-
             process.Start();
 
-            SetStatus("LeipzigCraft läuft. Viel Spaß in Grünau!");
+            SetStatus("LeipzigCraft wurde gestartet. Viel Spaß in Grünau!");
         });
     }
 
@@ -124,19 +115,14 @@ public partial class MainWindow : Window
     private void SetBusy(bool busy)
     {
         _busy = busy;
-
         BusyProgress.Visibility =
             busy ? Visibility.Visible : Visibility.Collapsed;
-
         LoginButton.IsEnabled = !busy;
         PlayButton.IsEnabled = !busy;
     }
 
     private void SetStatus(string text)
     {
-        Dispatcher.Invoke(() =>
-        {
-            StatusText.Text = text;
-        });
+        Dispatcher.Invoke(() => StatusText.Text = text);
     }
 }

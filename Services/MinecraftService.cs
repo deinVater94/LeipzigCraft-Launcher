@@ -17,12 +17,10 @@ public sealed class MinecraftService
     {
         AppPaths.Ensure();
 
-        _launcher = new MinecraftLauncher(
-            new MinecraftPath(AppPaths.Game));
+        _launcher = new MinecraftLauncher(new MinecraftPath(AppPaths.Game));
 
         _loginHandler = new JELoginHandlerBuilder()
-            .WithAccountManager(
-                Path.Combine(AppPaths.State, "accounts.json"))
+            .WithAccountManager(Path.Combine(AppPaths.State, "accounts.json"))
             .Build();
     }
 
@@ -31,20 +29,23 @@ public sealed class MinecraftService
         return await _loginHandler.Authenticate();
     }
 
-    public async Task EnsureMinecraftAsync(
-        Action<string>? status = null)
+    public async Task EnsureMinecraftAsync(Action<string>? status = null)
     {
-        status?.Invoke("Prüfe Minecraft 1.21 …");
+        status?.Invoke("Installiere / prüfe Minecraft 1.21 …");
 
-        await _launcher.InstallAsync(
-            LauncherSettings.MinecraftVersion);
+        // Installs vanilla 1.21 completely: client JAR, libraries, assets and Java.
+        await _launcher.InstallAsync(LauncherSettings.MinecraftVersion);
 
-        status?.Invoke("Minecraft 1.21 ist bereit.");
+        status?.Invoke("Minecraft 1.21 ist vollständig installiert.");
     }
 
     public async Task<Process> CreateFabricProcessAsync(
-        MSession session)
+        MSession session,
+        Action<string>? status = null)
     {
+        status?.Invoke("Prüfe Fabric- und Minecraft-Dateien …");
+
+        // FabricService created a new custom version profile. Refresh versions.
         await _launcher.GetAllVersionsAsync();
 
         var option = new MLaunchOption
@@ -53,11 +54,38 @@ public sealed class MinecraftService
             MaximumRamMb = LauncherSettings.MaximumRamMb,
             MinimumRamMb = 2048,
             GameLauncherName = "LeipzigCraft",
-            GameLauncherVersion = "0.1.0"
+            GameLauncherVersion = "0.1.1"
         };
 
-        return await _launcher.BuildProcessAsync(
+        // Important: install the Fabric custom version too, instead of only
+        // building arguments from files already present on disk.
+        var process = await _launcher.InstallAndBuildProcessAsync(
             LauncherSettings.FabricVersionId,
             option);
+
+        WriteLaunchDebugInfo(process);
+        return process;
+    }
+
+    private static void WriteLaunchDebugInfo(Process process)
+    {
+        try
+        {
+            Directory.CreateDirectory(AppPaths.State);
+
+            var info = process.StartInfo;
+            var debug =
+                $"Generated: {DateTimeOffset.Now:O}{Environment.NewLine}" +
+                $"FileName: {info.FileName}{Environment.NewLine}" +
+                $"WorkingDirectory: {info.WorkingDirectory}{Environment.NewLine}" +
+                $"Arguments: {info.Arguments}{Environment.NewLine}";
+
+            File.WriteAllText(
+                Path.Combine(AppPaths.State, "last-launch.txt"),
+                debug);
+        }
+        catch
+        {
+        }
     }
 }

@@ -20,10 +20,12 @@ public sealed class MinecraftService
     {
         AppPaths.Ensure();
 
-        _launcher = new MinecraftLauncher(new MinecraftPath(AppPaths.Game));
+        _launcher = new MinecraftLauncher(
+            new MinecraftPath(AppPaths.Game));
 
         _loginHandler = new JELoginHandlerBuilder()
-            .WithAccountManager(Path.Combine(AppPaths.State, "accounts.json"))
+            .WithAccountManager(
+                Path.Combine(AppPaths.State, "accounts.json"))
             .Build();
     }
 
@@ -71,16 +73,19 @@ public sealed class MinecraftService
     public async Task EnsureMinecraftAsync(Action<string>? status = null)
     {
         status?.Invoke("Installiere / prüfe Minecraft 1.21 …");
-        await _launcher.InstallAsync(LauncherSettings.MinecraftVersion);
+
+        await _launcher.InstallAsync(
+            LauncherSettings.MinecraftVersion);
+
         status?.Invoke("Minecraft 1.21 ist vollständig installiert.");
     }
 
     public async Task<Process> CreateFabricProcessAsync(
         MSession session,
-        bool fabricRuntimeAlreadyInstalled,
         Action<string>? status = null)
     {
         status?.Invoke("Prüfe Fabric- und Minecraft-Dateien …");
+
         await _launcher.GetAllVersionsAsync();
 
         var option = new MLaunchOption
@@ -89,25 +94,18 @@ public sealed class MinecraftService
             MaximumRamMb = LauncherSettings.MaximumRamMb,
             MinimumRamMb = 2048,
             GameLauncherName = "LeipzigCraft",
-            GameLauncherVersion = "0.2.1"
+            GameLauncherVersion = "0.2.2"
         };
 
-        Process process;
+        // Always resolve/install the Fabric custom version before launch.
+        // This guarantees that Fabric's inherited Minecraft 1.21 client JAR,
+        // libraries and complete classpath are present on fresh/test PCs.
+        // Double launches are already blocked by IsLeipzigCraftRunning().
+        status?.Invoke("Vervollständige Fabric-Installation …");
 
-        if (fabricRuntimeAlreadyInstalled)
-        {
-            status?.Invoke("Fabric ist aktuell. Bereite Start vor …");
-            process = await _launcher.BuildProcessAsync(
-                LauncherSettings.FabricVersionId,
-                option);
-        }
-        else
-        {
-            status?.Invoke("Installiere benötigte Fabric-Dateien …");
-            process = await _launcher.InstallAndBuildProcessAsync(
-                LauncherSettings.FabricVersionId,
-                option);
-        }
+        var process = await _launcher.InstallAndBuildProcessAsync(
+            LauncherSettings.FabricVersionId,
+            option);
 
         WriteLaunchDebugInfo(process);
         return process;
@@ -116,16 +114,22 @@ public sealed class MinecraftService
     public void RegisterRunningProcess(Process process)
     {
         AppPaths.Ensure();
-        File.WriteAllText(RunningPidFile, process.Id.ToString());
+
+        File.WriteAllText(
+            RunningPidFile,
+            process.Id.ToString());
 
         process.EnableRaisingEvents = true;
+
         process.Exited += (_, _) =>
         {
             try
             {
-                if (!File.Exists(RunningPidFile)) return;
+                if (!File.Exists(RunningPidFile))
+                    return;
 
                 var pidText = File.ReadAllText(RunningPidFile).Trim();
+
                 if (pidText == process.Id.ToString())
                     File.Delete(RunningPidFile);
             }
@@ -140,14 +144,18 @@ public sealed class MinecraftService
         try
         {
             Directory.CreateDirectory(AppPaths.State);
+
             var info = process.StartInfo;
+
             var debug =
                 $"Generated: {DateTimeOffset.Now:O}{Environment.NewLine}" +
                 $"FileName: {info.FileName}{Environment.NewLine}" +
                 $"WorkingDirectory: {info.WorkingDirectory}{Environment.NewLine}" +
                 $"Arguments: {info.Arguments}{Environment.NewLine}";
 
-            File.WriteAllText(Path.Combine(AppPaths.State, "last-launch.txt"), debug);
+            File.WriteAllText(
+                Path.Combine(AppPaths.State, "last-launch.txt"),
+                debug);
         }
         catch
         {

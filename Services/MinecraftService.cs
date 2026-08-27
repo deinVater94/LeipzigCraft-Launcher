@@ -13,6 +13,9 @@ public sealed class MinecraftService
     private readonly MinecraftLauncher _launcher;
     private readonly JELoginHandler _loginHandler;
 
+    private static readonly string RunningPidFile =
+        Path.Combine(AppPaths.State, "minecraft.pid");
+
     public MinecraftService()
     {
         AppPaths.Ensure();
@@ -29,23 +32,55 @@ public sealed class MinecraftService
         return await _loginHandler.Authenticate();
     }
 
+    public bool IsLeipzigCraftRunning()
+    {
+        AppPaths.Ensure();
+
+        if (!File.Exists(RunningPidFile))
+            return false;
+
+        try
+        {
+            var text = File.ReadAllText(RunningPidFile).Trim();
+
+            if (!int.TryParse(text, out var pid))
+            {
+                File.Delete(RunningPidFile);
+                return false;
+            }
+
+            var process = Process.GetProcessById(pid);
+
+            if (process.HasExited)
+            {
+                File.Delete(RunningPidFile);
+                return false;
+            }
+
+            return true;
+        }
+        catch
+        {
+            if (File.Exists(RunningPidFile))
+                File.Delete(RunningPidFile);
+
+            return false;
+        }
+    }
+
     public async Task EnsureMinecraftAsync(Action<string>? status = null)
     {
         status?.Invoke("Installiere / prüfe Minecraft 1.21 …");
-
-        // Installs vanilla 1.21 completely: client JAR, libraries, assets and Java.
         await _launcher.InstallAsync(LauncherSettings.MinecraftVersion);
-
         status?.Invoke("Minecraft 1.21 ist vollständig installiert.");
     }
 
     public async Task<Process> CreateFabricProcessAsync(
         MSession session,
+        bool fabricRuntimeAlreadyInstalled,
         Action<string>? status = null)
     {
         status?.Invoke("Prüfe Fabric- und Minecraft-Dateien …");
-
-        // FabricService created a new custom version profile. Refresh versions.
         await _launcher.GetAllVersionsAsync();
 
         var option = new MLaunchOption
@@ -54,17 +89,50 @@ public sealed class MinecraftService
             MaximumRamMb = LauncherSettings.MaximumRamMb,
             MinimumRamMb = 2048,
             GameLauncherName = "LeipzigCraft",
-            GameLauncherVersion = "0.1.1"
+            GameLauncherVersion = "0.2.1"
         };
 
-        // Important: install the Fabric custom version too, instead of only
-        // building arguments from files already present on disk.
-        var process = await _launcher.InstallAndBuildProcessAsync(
-            LauncherSettings.FabricVersionId,
-            option);
+        Process process;
+
+        if (fabricRuntimeAlreadyInstalled)
+        {
+            status?.Invoke("Fabric ist aktuell. Bereite Start vor …");
+            process = await _launcher.BuildProcessAsync(
+                LauncherSettings.FabricVersionId,
+                option);
+        }
+        else
+        {
+            status?.Invoke("Installiere benötigte Fabric-Dateien …");
+            process = await _launcher.InstallAndBuildProcessAsync(
+                LauncherSettings.FabricVersionId,
+                option);
+        }
 
         WriteLaunchDebugInfo(process);
         return process;
+    }
+
+    public void RegisterRunningProcess(Process process)
+    {
+        AppPaths.Ensure();
+        File.WriteAllText(RunningPidFile, process.Id.ToString());
+
+        process.EnableRaisingEvents = true;
+        process.Exited += (_, _) =>
+        {
+            try
+            {
+                if (!File.Exists(RunningPidFile)) return;
+
+                var pidText = File.ReadAllText(RunningPidFile).Trim();
+                if (pidText == process.Id.ToString())
+                    File.Delete(RunningPidFile);
+            }
+            catch
+            {
+            }
+        };
     }
 
     private static void WriteLaunchDebugInfo(Process process)
@@ -72,7 +140,6 @@ public sealed class MinecraftService
         try
         {
             Directory.CreateDirectory(AppPaths.State);
-
             var info = process.StartInfo;
             var debug =
                 $"Generated: {DateTimeOffset.Now:O}{Environment.NewLine}" +
@@ -80,9 +147,7 @@ public sealed class MinecraftService
                 $"WorkingDirectory: {info.WorkingDirectory}{Environment.NewLine}" +
                 $"Arguments: {info.Arguments}{Environment.NewLine}";
 
-            File.WriteAllText(
-                Path.Combine(AppPaths.State, "last-launch.txt"),
-                debug);
+            File.WriteAllText(Path.Combine(AppPaths.State, "last-launch.txt"), debug);
         }
         catch
         {

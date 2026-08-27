@@ -18,42 +18,59 @@ public sealed class FabricService
     private static string VersionJson =>
         Path.Combine(VersionDirectory, $"{LauncherSettings.FabricVersionId}.json");
 
+    private static string FabricLoaderJar =>
+        Path.Combine(
+            AppPaths.Game,
+            "libraries",
+            "net",
+            "fabricmc",
+            "fabric-loader",
+            LauncherSettings.FabricLoaderVersion,
+            $"fabric-loader-{LauncherSettings.FabricLoaderVersion}.jar");
+
     private static string ProfileUrl =>
         $"https://meta.fabricmc.net/v2/versions/loader/" +
         $"{Uri.EscapeDataString(LauncherSettings.MinecraftVersion)}/" +
         $"{Uri.EscapeDataString(LauncherSettings.FabricLoaderVersion)}/profile/json";
 
-    public bool IsInstalled()
+    public bool IsProfileInstalled()
     {
         return File.Exists(VersionJson) &&
                IsProfileValid(File.ReadAllText(VersionJson));
     }
 
-    public async Task EnsureInstalledAsync(Action<string>? status = null)
+    public bool AreRuntimeFilesInstalled()
+    {
+        return IsProfileInstalled() && File.Exists(FabricLoaderJar);
+    }
+
+    public async Task EnsureProfileInstalledAsync(Action<string>? status = null)
     {
         AppPaths.Ensure();
 
-        status?.Invoke($"Prüfe Fabric Loader {LauncherSettings.FabricLoaderVersion} …");
+        if (IsProfileInstalled())
+        {
+            status?.Invoke($"Fabric Loader {LauncherSettings.FabricLoaderVersion} ist bereits eingerichtet.");
+            return;
+        }
+
+        status?.Invoke($"Installiere Fabric Loader {LauncherSettings.FabricLoaderVersion} …");
 
         Directory.CreateDirectory(Path.Combine(AppPaths.Game, "versions"));
 
-        // Remove profile data created by the old fabric-installer based launcher.
         if (Directory.Exists(VersionDirectory))
             Directory.Delete(VersionDirectory, recursive: true);
 
         Directory.CreateDirectory(VersionDirectory);
 
-        status?.Invoke($"Installiere Fabric Loader {LauncherSettings.FabricLoaderVersion} …");
-
         var json = await Http.GetStringAsync(ProfileUrl);
 
         if (!IsProfileValid(json))
-            throw new InvalidDataException(
-                "Fabric Meta hat kein gültiges Launcher-Profil geliefert.");
+            throw new InvalidDataException("Fabric Meta hat kein gültiges Launcher-Profil geliefert.");
 
         await File.WriteAllTextAsync(VersionJson, json);
 
-        status?.Invoke($"Fabric Loader {LauncherSettings.FabricLoaderVersion} ist bereit.");
+        status?.Invoke($"Fabric Loader {LauncherSettings.FabricLoaderVersion} ist eingerichtet.");
     }
 
     private static bool IsProfileValid(string json)
@@ -67,10 +84,9 @@ public sealed class FabricService
             if (!root.TryGetProperty("inheritsFrom", out var parent)) return false;
             if (!root.TryGetProperty("mainClass", out var mainClass)) return false;
 
-            return
-                id.GetString() == LauncherSettings.FabricVersionId &&
-                parent.GetString() == LauncherSettings.MinecraftVersion &&
-                !string.IsNullOrWhiteSpace(mainClass.GetString());
+            return string.Equals(id.GetString(), LauncherSettings.FabricVersionId, StringComparison.Ordinal) &&
+                   string.Equals(parent.GetString(), LauncherSettings.MinecraftVersion, StringComparison.Ordinal) &&
+                   !string.IsNullOrWhiteSpace(mainClass.GetString());
         }
         catch
         {

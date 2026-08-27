@@ -54,7 +54,7 @@
                                FontSize="15"
                                TextWrapping="Wrap"
                                LineHeight="23">
-                        Minecraft 1.21 · Fabric 0.18.4 · LeipzigCraft
+                        Minecraft 1.21 · Fabric 0.17.3 · LeipzigCraft
                     </TextBlock>
                 </StackPanel>
 

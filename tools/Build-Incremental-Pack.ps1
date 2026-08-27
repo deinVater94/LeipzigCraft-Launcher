@@ -5,7 +5,10 @@ param(
     [string]$Owner = "deinVater94",
     [string]$Repo = "LeipzigCraft-Launcher",
     [string]$SourceRoot = (Join-Path $env:APPDATA ".minecraft"),
-    [string]$PreviousManifestUrl = "https://leipzigcraft.com/launcher/pack.json"
+    [string]$PreviousManifestUrl = "https://leipzigcraft.com/launcher/pack.json",
+
+    [Parameter(Mandatory=$true)]
+    [string]$SigningPrivateKey
 )
 
 $ErrorActionPreference = "Stop"
@@ -192,6 +195,35 @@ $manifest |
     ConvertTo-Json -Depth 8 |
     Set-Content $manifestPath -Encoding UTF8
 
+# Sign the EXACT manifest bytes that will be published.
+$signaturePath = Join-Path $dist "pack.sig"
+$privateKeyPath = (Resolve-Path $SigningPrivateKey -ErrorAction Stop).Path
+
+$pem = [IO.File]::ReadAllText($privateKeyPath)
+$manifestBytes = [IO.File]::ReadAllBytes($manifestPath)
+$rsa = [Security.Cryptography.RSA]::Create()
+
+try {
+    $rsa.ImportFromPem($pem)
+
+    $signatureBytes = $rsa.SignData(
+        $manifestBytes,
+        [Security.Cryptography.HashAlgorithmName]::SHA256,
+        [Security.Cryptography.RSASignaturePadding]::Pkcs1
+    )
+
+    [IO.File]::WriteAllText(
+        $signaturePath,
+        [Convert]::ToBase64String($signatureBytes),
+        [Text.Encoding]::ASCII
+    )
+}
+finally {
+    $rsa.Dispose()
+}
+
+Write-Host "pack.json kryptografisch signiert." -ForegroundColor Green
+
 @"
 LeipzigCraft Incremental Pack $Version
 
@@ -201,6 +233,7 @@ LeipzigCraft Incremental Pack $Version
 4. Lade ALLE Dateien aus dist-incremental\upload hoch
 5. Release veröffentlichen
 6. dist-incremental\pack.json im WEBSITE-Repo als launcher/pack.json ersetzen
+7. dist-incremental\pack.sig im WEBSITE-Repo als launcher/pack.sig hochladen
 
 Neue Release-Assets: $($newAssets.Count)
 Gesamte Mods im Manifest: $($manifestFiles.Count)

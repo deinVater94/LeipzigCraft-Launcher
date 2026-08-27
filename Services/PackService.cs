@@ -115,26 +115,52 @@ public sealed class PackService
 
     private static async Task<PackManifest> DownloadManifestAsync()
     {
-        using var response = await Http.GetAsync(
-            LauncherSettings.PackManifestUrl,
-            HttpCompletionOption.ResponseHeadersRead);
+        var manifestTask = Http.GetByteArrayAsync(
+            LauncherSettings.PackManifestUrl);
 
-        response.EnsureSuccessStatusCode();
+        var signatureTask = Http.GetStringAsync(
+            LauncherSettings.PackSignatureUrl);
 
-        await using var stream =
-            await response.Content.ReadAsStreamAsync();
+        await Task.WhenAll(
+            manifestTask,
+            signatureTask);
 
-        var manifest =
-            await JsonSerializer.DeserializeAsync<PackManifest>(
-                stream,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+        var manifestBytes = await manifestTask;
+        var signatureText = await signatureTask;
+
+        if (!ManifestSignatureService.Verify(
+                manifestBytes,
+                signatureText,
+                out var verifiedBy))
+        {
+            throw new InvalidDataException(
+                "Sicherheitsprüfung fehlgeschlagen: " +
+                "Die LeipzigCraft-Modliste besitzt keine gültige Signatur. " +
+                "Es wurden keine Updates installiert.");
+        }
+
+        PackManifest? manifest;
+
+        try
+        {
+            manifest =
+                JsonSerializer.Deserialize<PackManifest>(
+                    manifestBytes,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidDataException(
+                "Die signierte LeipzigCraft-Modliste ist ungültiges JSON.",
+                ex);
+        }
 
         return manifest ??
             throw new InvalidDataException(
-                "Die Online-Modliste ist leer oder ungültig.");
+                "Die signierte LeipzigCraft-Modliste ist leer.");
     }
 
     private static void ValidateManifest(PackManifest manifest)

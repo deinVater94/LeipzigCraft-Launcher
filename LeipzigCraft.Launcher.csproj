@@ -19,6 +19,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>none</DebugType>
+    <ApplicationIcon>Assets\leipzigcraft.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,10 @@
 
   <ItemGroup>
     <Resource Include="Assets\leipzigcraft-logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\leipzigcraft.ico" />
   </ItemGroup>
 
 </Project>

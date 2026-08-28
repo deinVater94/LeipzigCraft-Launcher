@@ -151,3 +151,18 @@ Dass euer Server Fabric `0.17.3` verwendet, muss der Client-Launcher nicht nachb
 - `tools/Build-Pack.ps1` – Spieler-Pack bauen
 - `web/launcher/pack.json` – kleines Online-Manifest
 - `docs/mods-reference.json` – Referenz der aktuell gemeldeten Mods
+
+## Open Source
+
+LeipzigCraft Launcher is open-source software licensed under the [MIT License](LICENSE).
+
+## Code signing policy
+
+See our [Code signing policy](CODE_SIGNING_POLICY.md).
+
+Free code signing provided by SignPath.io, certificate by SignPath Foundation.
+
+## Privacy and uninstallation
+
+- [Privacy Policy](PRIVACY.md)
+- [Uninstallation instructions](UNINSTALL.md)

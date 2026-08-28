@@ -14,5 +14,6 @@ public static class LauncherSettings
 
     public const int MaximumRamMb = 6144;
 
-    public const string ServerAddress = "";
+    public const string ServerName = "LeipzigCraft";
+    public const string ServerAddress = "185.9.104.131:10100";
 }

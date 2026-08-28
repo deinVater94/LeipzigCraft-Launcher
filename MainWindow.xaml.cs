@@ -99,6 +99,9 @@ public partial class MainWindow : Window
                     "pack.sig und die GitHub-Release-Dateien.");
             }
 
+            SetStatus("Trage LeipzigCraft in die Serverliste ein …");
+            ServerListService.EnsureLeipzigCraftFirst();
+
             SetStatus("Bereite LeipzigCraft vor …");
 
             var process = await _minecraft.CreateFabricProcessAsync(

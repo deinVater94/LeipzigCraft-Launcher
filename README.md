@@ -1,156 +1,103 @@
-# LeipzigCraft Launcher v0.1
+# LeipzigCraft Launcher
 
-Windows-Launcher für **Minecraft 1.21 + Fabric Loader 0.18.4**.
+<p align="center">
+  <img src="Assets/leipzigcraft-logo.png" alt="LeipzigCraft" width="320">
+</p>
 
-## Was v0.1 bereits vorbereitet
+<p align="center">
+  <strong>Open-source Windows launcher for the LeipzigCraft Minecraft community server.</strong>
+</p>
 
-- Eigene, isolierte Installation unter `%APPDATA%\LeipzigCraft\game`
-- Microsoft-/Minecraft-Anmeldung
-- Installation von Minecraft 1.21
-- Installation von Fabric Loader 0.18.4
-- LeipzigCraft-Modpack-Sync über `https://leipzigcraft.com/launcher/pack.json`
-- SHA256-Prüfung des heruntergeladenen Packs
-- Entfernen alter Mods vor einem Pack-Update
-- Großer `SPIELEN`-Button
-- GitHub-Actions-Workflow zum Erzeugen einer selbstständigen Windows-EXE
-- Import-Skript für eure aktuell funktionierende lokale Installation
-
-Aus deinem Mod-Manifest wurden **29 JAR-Dateien** als Referenz übernommen.
-Die `.rar`-Archive aus dem Mods-Ordner werden absichtlich **nicht** als Mods verteilt.
+<p align="center">
+  Minecraft 1.21 · Fabric Loader 0.17.3 · Windows x64
+</p>
 
 ---
 
-# Erster Entwicklertest
+## Download
 
-## 1. Aktuelles Pack in die getrennte Instanz importieren
+The latest public release is available under:
 
-Auf dem Rechner, auf dem eure funktionierende Minecraft-Installation liegt:
+**[GitHub Releases](https://github.com/deinVater94/LeipzigCraft-Launcher/releases)**
 
-Rechtsklick auf:
+> The current release candidate is not yet covered by the final trusted code-signing setup.
+> Windows SmartScreen may therefore show a warning when launching the executable.
 
-`tools\Import-Current-Pack.ps1`
+## What the launcher does
 
-und mit PowerShell ausführen.
+LeipzigCraft Launcher is designed to make joining the LeipzigCraft server as simple as possible, including for players who have never installed Minecraft mods manually.
 
-Das Skript kopiert nur `.jar`-Mods und Config nach:
+It provides:
 
-`%APPDATA%\LeipzigCraft\game`
+- Microsoft / Minecraft authentication
+- Automatic Minecraft 1.21 setup
+- Fabric Loader 0.17.3
+- Automatic LeipzigCraft modpack installation
+- Incremental mod updates
+- SHA-256 verification of downloaded files
+- Cryptographically signed update-manifest verification
+- Isolated installation under `%APPDATA%\LeipzigCraft`
+- Automatic LeipzigCraft multiplayer server entry
+- Protection against duplicate game launches
+- Separate launcher and game state from the user's normal `.minecraft` installation
 
-Die normale `.minecraft`-Installation wird nicht verändert.
+## Update security
 
-## 2. Launcher bauen
-
-### Einfachster Weg: GitHub Actions
-
-Lege dieses Projekt in ein GitHub-Repository und pushe es.
-
-Dann:
-
-`Actions -> Build LeipzigCraft Launcher -> Run workflow`
-
-Nach dem Build liegt unter **Artifacts**:
-
-`LeipzigCraft-Launcher.exe`
-
-### Lokal
-
-Benötigt .NET 8 SDK:
-
-```powershell
-dotnet restore
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
-```
-
-Danach:
-
-`publish\LeipzigCraft-Launcher.exe`
-
----
-
-# Modpack für Spieler veröffentlichen
-
-Wenn der Launcher später das Pack automatisch herunterladen soll:
-
-## 1. Pack bauen
-
-```powershell
-.\tools\Build-Pack.ps1 -Version "0.1.0"
-```
-
-Das erzeugt:
-
-`dist\LeipzigCraft-Pack-0.1.0.zip`
-
-plus SHA256.
-
-## 2. ZIP hosten
-
-Empfehlung: als GitHub-Release-Asset hochladen.
-
-## 3. `pack.json` ausfüllen
-
-Datei:
-
-`web\launcher\pack.json`
-
-Beispiel:
-
-```json
-{
-  "version": "0.1.0",
-  "zipUrl": "DEINE-DIREKTE-RELEASE-URL",
-  "sha256": "SHA256-DES-ZIPS",
-  "size": 1334000000
-}
-```
-
-Diese Datei anschließend auf der Website unter folgendem Pfad veröffentlichen:
+The launcher retrieves the LeipzigCraft update manifest from:
 
 `https://leipzigcraft.com/launcher/pack.json`
 
-Beim nächsten Launcher-Start wird das Pack automatisch geprüft und bei einer neuen Versionsnummer heruntergeladen.
+The corresponding detached signature is retrieved from:
 
----
+`https://leipzigcraft.com/launcher/pack.sig`
 
-# Resourcepack
+The launcher contains only the public verification keys.
 
-Das Resourcepack ist absichtlich **nicht** Teil des Launchers.
-Wie besprochen kann es als Minecraft-Server-Resource-Pack verteilt werden.
+Before accepting an update manifest, the launcher verifies its cryptographic signature. If the signature is missing or invalid, the update is rejected before any managed mod files are downloaded.
 
----
+Individual downloaded files are also verified using SHA-256 hashes stored in the signed manifest.
 
-# Wichtig für v0.1
+Private manifest-signing keys are never stored in this repository.
 
-Der Launcher benutzt die **Client-Konfiguration, die bei euch tatsächlich funktioniert**:
+## Game installation
 
-- Minecraft: `1.21`
-- Fabric Client: `0.18.4`
+The launcher maintains its own installation under:
 
-Dass euer Server Fabric `0.17.3` verwendet, muss der Client-Launcher nicht nachbilden.
+```text
+%APPDATA%\LeipzigCraft\game
+```
 
-## Noch offen für v0.2
+This keeps LeipzigCraft separate from the user's regular Minecraft installation.
 
-- Server-IP automatisch verbinden
-- Launcher-Selbstupdate
-- Download-Prozentanzeige statt nur Ladebalken
-- RAM-Regler
-- News/Changelog
-- Code Signing
-- optional eigene Java-21-Bootstrap-Logik, falls auf einem frischen PC keine passende Runtime gefunden wird
+The configured Minecraft environment is:
 
----
+```text
+Minecraft:     1.21
+Fabric Loader: 0.17.3
+```
 
-## Projektstruktur
+## Multiplayer server
 
-- `MainWindow.xaml` – UI
-- `MainWindow.xaml.cs` – Login/Play-Ablauf
-- `Services/MinecraftService.cs` – Minecraft + Login
-- `Services/FabricService.cs` – Fabric Installer
-- `Services/PackService.cs` – Pack-Download/Hash/Installation
-- `tools/Import-Current-Pack.ps1` – bestehendes funktionierendes Pack importieren
-- `tools/Build-Pack.ps1` – Spieler-Pack bauen
-- `web/launcher/pack.json` – kleines Online-Manifest
-- `docs/mods-reference.json` – Referenz der aktuell gemeldeten Mods
+The launcher automatically adds LeipzigCraft as the first entry in the multiplayer server list of its isolated Minecraft installation.
+
+```text
+Name:    LeipzigCraft
+Address: 185.9.104.131:10100
+```
+
+## Building
+
+Official Windows binaries are built from this repository using GitHub Actions on GitHub-hosted Windows runners.
+
+The project targets:
+
+```text
+.NET 8
+WPF
+Windows x64
+```
+
+The build workflow produces a self-contained Windows executable.
 
 ## Open Source
 
@@ -158,11 +105,24 @@ LeipzigCraft Launcher is open-source software licensed under the [MIT License](L
 
 ## Code signing policy
 
-See our [Code signing policy](CODE_SIGNING_POLICY.md).
+See the [Code signing policy](CODE_SIGNING_POLICY.md).
 
 Free code signing provided by SignPath.io, certificate by SignPath Foundation.
 
-## Privacy and uninstallation
+## Privacy
 
-- [Privacy Policy](PRIVACY.md)
-- [Uninstallation instructions](UNINSTALL.md)
+See the [Privacy Policy](PRIVACY.md).
+
+## Uninstall
+
+See the [Uninstallation instructions](UNINSTALL.md).
+
+## Security
+
+If you discover a security issue involving the launcher or its update mechanism, please avoid publishing exploit details before the maintainers have had a reasonable opportunity to investigate.
+
+## Disclaimer
+
+LeipzigCraft is an independent community project and is not affiliated with, endorsed by, authorized by, or associated with Mojang Studios or Microsoft.
+
+Minecraft is a trademark of Microsoft Corporation and/or Mojang Studios.

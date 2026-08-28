@@ -9,10 +9,6 @@ public static class ServerListService
     private static string ServersFile =>
         Path.Combine(AppPaths.Game, "servers.dat");
 
-    /// <summary>
-    /// Ensures LeipzigCraft is visible as the first server in Minecraft's
-    /// multiplayer list while preserving all other saved servers.
-    /// </summary>
     public static void EnsureLeipzigCraftFirst()
     {
         AppPaths.Ensure();
@@ -26,12 +22,12 @@ public static class ServerListService
                 file = new NbtFile();
                 file.LoadFromFile(
                     ServersFile,
-                    NbtCompression.None);
+                    NbtCompression.None,
+                    null);
             }
             catch
             {
                 BackupBrokenServerList();
-
                 file = CreateEmptyServerFile();
             }
         }
@@ -64,8 +60,6 @@ public static class ServerListService
 
         NbtCompound? previousLeipzigCraft = null;
 
-        // Remove older LeipzigCraft entries so there is exactly one,
-        // then insert the current entry at index 0.
         for (var i = servers.Count - 1; i >= 0; i--)
         {
             if (servers[i] is not NbtCompound server)
@@ -98,13 +92,11 @@ public static class ServerListService
                 "ip",
                 LauncherSettings.ServerAddress),
 
-            // Always visible in Multiplayer.
             new NbtByte(
                 "hidden",
                 0)
         };
 
-        // Preserve Minecraft's cached server icon, if one already exists.
         var icon =
             previousLeipzigCraft is null
                 ? null
@@ -118,8 +110,6 @@ public static class ServerListService
                     icon));
         }
 
-        // Preserve the player's previous server-resource-pack choice.
-        // If there is no previous choice, Minecraft asks normally.
         if (previousLeipzigCraft is not null &&
             TryGetByte(
                 previousLeipzigCraft,
@@ -219,7 +209,6 @@ public static class ServerListService
         }
         catch
         {
-            // A broken server list must never prevent LeipzigCraft from starting.
         }
     }
 }
